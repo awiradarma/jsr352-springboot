@@ -33,7 +33,15 @@ public class BatchApplication {
  
 		String[] original_arguments = applicationarguments.getSourceArgs();
 		if (original_arguments.length != 0) {
-			long jobId = jp.start(original_arguments[0], new Properties());
+			Properties properties = new Properties();
+            for(int i=1; i<original_arguments.length; i++)  {
+                int equalIndex = original_arguments[i].indexOf('=');
+                String name = original_arguments[i].substring(0, equalIndex);
+				String value = original_arguments[i].substring(equalIndex+1);
+				System.out.println(name + " : " + value);
+                properties.put(name, value);
+            }
+			long jobId = jp.start(original_arguments[0], properties);
 			JobExecution je = jp.getJobExecution(jobId);
 			BatchStatus status = je.getBatchStatus();
 			while (true) {
@@ -51,6 +59,7 @@ public class BatchApplication {
 	}
 
 	public static void main(String[] args) {
+		System.out.println("In main..");
 		ConfigurableApplicationContext ctx = SpringApplication.run(BatchApplication.class, args);
 		if (!isRunning) {
 			log.info("Terminating job");
